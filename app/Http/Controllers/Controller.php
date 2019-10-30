@@ -11,6 +11,10 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
+    public $api_key;
+    public function setApiKey($key) {
+      $this->api_key = $key;
+    }
     public function getResultByUrl($url){
       $client = new \GuzzleHttp\Client();
       $key = config('app.didww_key');

@@ -11,12 +11,12 @@ class DidsController extends Controller
     public $countries;
     public $types;
     public $cities;
-    public function __construct(Request $request)
+    public function __construct()
     {
         $this->countries = $this->getResultByUrl('countries')['data'];
         $this->types = $this->getResultByUrl("did_group_types")['data'];
         $this->cities = $this->getResultByUrl("cities?include=country")['data'];
-        $this->middleware('isLogged');
+       // $this->middleware('isLogged');
     }
 
     public function available(Request $request){

@@ -35,6 +35,7 @@ class LoginController extends Controller
      *
      * @return void
      */
+    
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
@@ -42,7 +43,6 @@ class LoginController extends Controller
 
     public function didLogin(Request $request) {
       $api_key = $request->input("api_key");
-      $type = config('app.didww_type');
       $client = new \GuzzleHttp\Client();
 
       try {
@@ -58,6 +58,7 @@ class LoginController extends Controller
         $result = json_decode($res->getBody()->getContents(), true);
         $request->session()->put('is_logged', 'true');
         $request->session()->put('api_key', $api_key);
+        config(['app.api_key' => $api_key]);
         return redirect('/available_dids');
       } catch (\GuzzleHttp\Exception\ClientException $e){
         $responseBody = $e->getResponse()->getBody(true);
