@@ -10,4 +10,42 @@ use Illuminate\Routing\Controller as BaseController;
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+
+    public function getResultByUrl($url){
+      $client = new \GuzzleHttp\Client();
+      $key = config('app.didww_key');
+      $res = $client->request('GET', 'https://api.didww.com/v3/'.$url,
+          [
+              'headers' => [
+                  'Api-key' => $key ,
+                  'Accept' => 'application/vnd.api+json',
+                  "Content-Type" => "application/vnd.api+json"
+              ],
+          ]
+      );
+      $result = json_decode($res->getBody()->getContents(), true);
+      return $result;
+    }
+
+    public function getArrayById($array, $id) {
+      foreach ($array as $key => $item) {
+        if($item['id'] == $id) return $item;
+      }
+    }
+    public function getTypeById($id) {
+      $client = new \GuzzleHttp\Client();
+      $key = config('app.didww_key');
+      $res = $client->request('GET', 'https://api.didww.com/v3/did_group_types/'.$id,
+          [
+              'headers' => [
+                  'Api-key' => $key ,
+                  'Accept' => 'application/vnd.api+json',
+                  "Content-Type" => "application/vnd.api+json"
+              ],
+          ]
+      );
+      $result = json_decode($res->getBody()->getContents(), true);
+      return $result['data'];
+    }
+
 }

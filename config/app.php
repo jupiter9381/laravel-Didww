@@ -28,6 +28,8 @@ return [
 
     'env' => env('APP_ENV', 'production'),
 
+    'didww_key' => env('DIDWW_KEY', ''),
+    'didww_type' => env('DIDWW_TYPE', 'production'),
     /*
     |--------------------------------------------------------------------------
     | Application Debug Mode
