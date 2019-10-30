@@ -207,8 +207,9 @@ class DidsController extends Controller
       $key = $request->session()->get('api_key');
       $client = new \GuzzleHttp\Client();
 
-      $countries = $this->getResultByUrl('countries')['data'];
-      $types = $this->getResultByUrl("did_group_types")['data'];
+      $countries = $this->countries;
+      $types = $this->types;
+      $cities = $this->cities;
       $regions = $this->getResultByUrl("regions")['data'];
 
       $available_dids = $this->getResultByUrl("available_dids?".$filter_string."&include=did_group,did_group.stock_keeping_units,did_group.country,did_group.did_group_type&page[number]=1&page[size]=10");
@@ -262,7 +263,7 @@ class DidsController extends Controller
                       "stocks" => $stocks);
         array_push($dids, $item);
       }
-      return view("pages.available_dids", compact('types', 'countries', 'dids', 'filters'));
+      return view("pages.available_dids", compact('types', 'countries', 'dids', 'filters', 'cities'));
     }
     public function getCitiesById(Request $request) {
       $key = $request->session()->get('api_key');
