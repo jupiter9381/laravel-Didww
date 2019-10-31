@@ -29,7 +29,7 @@
                 <form action="{{url('/')}}/available_dids/search" method="post">
                   {{csrf_field()}}
                   <div class="row">
-                    <div class="col-5 form-group">
+                    <div class="col-4 form-group">
                       <div class="row">
                         <div class="col-12 form-group">
                             <div class="text-bold-600 font-medium-2 mb-1">
@@ -38,26 +38,19 @@
                             <select class="select2 form-control" name="country">
                               <option value="">Select country...</option>
                               @foreach($countries as $country)
-                                <option value="{{$country['id']}}">{{$country['attributes']['name']}}</option>
+                                <option <?php if($country['id'] == $filters['country']) echo "selected";?> value="{{$country['id']}}">{{$country['attributes']['name']}}</option>
                               @endforeach
                             </select>
                         </div>
                       </div>
-                      <div class="row">
-                        <div class="col-6 form-group region_section" style="display: none">
-                          <div class="text-bold-600 font-medium-2 mb-1">
-                              Region:
-                          </div>
-                          <select class="select2 form-control" name="region">
-                              <option value="">Select region...</option>
-                            </select>
-                        </div>
-                        <div class="col-6 form-group city_section" style="display: none">
+                      <div class="row city_section" style="display: none">
+                        <div class="col-12 form-group">
                           <div class="text-bold-600 font-medium-2 mb-1">
                               City:
                           </div>
                           <select class="select2 form-control" name="city">
                               <option value="">Select city...</option>
+                              
                             </select>
                         </div>
                       </div>
@@ -68,8 +61,8 @@
                       </div>
                       <select class="form-control" name="needs_registration">
                         <option value="">any</option>
-                        <option value="true">Required</option>
-                        <option value="false">Not Required</option>
+                        <option <?php if($filters['country'] == "true") echo "selected";?> value="true">Required</option>
+                        <option <?php if($filters['needs_registration'] == "false") echo "selected";?> value="false">Not Required</option>
                       </select>
                     </div>
                     <div class="col-2 form-group">
@@ -77,21 +70,30 @@
                           Number types
                       </div>
                       <div class="skin skin-flat">
-                        @foreach($types as $type)
+                        @if(count($filters['group_type']) > 0)
+                          @foreach($types as $type)
+                          <fieldset style="min-width: 150px;">
+                              <input <?php if(array_search($type['id'], $filters['group_type']) > -1) echo "checked";?> type="checkbox" id="input-15" value="{{$type['id']}}" name="group_type[]">
+                              <label for="input-15">{{$type['attributes']['name']}} </label>
+                          </fieldset>
+                          @endforeach
+                        @else
+                          @foreach($types as $type)
                           <fieldset style="min-width: 150px;">
                               <input type="checkbox" id="input-15" checked value="{{$type['id']}}" name="group_type[]">
                               <label for="input-15">{{$type['attributes']['name']}} </label>
                           </fieldset>
-                        @endforeach
+                          @endforeach
+                        @endif
                       </div>
                     </div>
-                    <div class="col-3">
+                    <div class="col-4">
                       <div class="row">
                         <div class="col-12 form-group">
                           <div class="text-bold-600 font-medium-2 mb-1">
                               Did Group ID
                           </div>
-                          <input type="text" class="form-control" name="did_group_id">
+                          <input type="text" class="form-control" name="did_group_id" value={{$filters['did_group_id']}}>
                         </div>
                       </div>
                       <div class="row">
@@ -99,7 +101,7 @@
                           <div class="text-bold-600 font-medium-2 mb-1">
                               Number
                           </div>
-                          <input type="text" class="form-control" name="number" value="">
+                          <input type="text" class="form-control" name="number" value="{{$filters['number']}}">
                         </div>
                       </div>
                     </div>
@@ -205,6 +207,7 @@
                                   <button type="submit" class="btn btn-outline-primary reserve_confirm">Reserve</button>
                               </div>
                             </form>
+
                         </div>
                     </div>
                 </div>
@@ -217,3 +220,6 @@
   </div>
 </div>
 @endsection
+<script>
+  //var cities = {!! json_encode($cities) !!};  
+</script>

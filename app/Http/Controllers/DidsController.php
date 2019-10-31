@@ -21,13 +21,6 @@ class DidsController extends Controller
 
     public function available(Request $request){
       $key = $request->session()->get('api_key');
-      $filters = array(
-        "country" => "",
-        "needs_registration" => "",
-        'group_type' => [],
-        "did_group_id" => "",
-        "number" => ""
-      );
       $client = new \GuzzleHttp\Client();
 
       $countries = $this->countries;
@@ -86,7 +79,7 @@ class DidsController extends Controller
                       "stocks" => $stocks);
         array_push($dids, $item);
       }
-      return view("pages.available_dids", compact('types', 'countries', 'dids', 'filters', 'cities'));
+      return view("pages.available_dids", compact('types', 'countries', 'dids'));
     }
 
     public function did_reservation(Request $request) {
@@ -214,61 +207,85 @@ class DidsController extends Controller
 
       $available_dids = $this->getResultByUrl("available_dids?".$filter_string."&include=did_group,did_group.stock_keeping_units,did_group.country,did_group.did_group_type&page[number]=1&page[size]=10");
 
-      $dids_data = $available_dids['data'];
-      $dids_included = $available_dids['included'];
-
-      $did_groups = array();
-      $did_stocks = array();
-      foreach ($dids_included as $key => $value) {
-        if($value['type'] == "did_groups") array_push($did_groups, $value);
-        if($value['type'] == "stock_keeping_units") array_push($did_stocks, $value);
-      }
-
+      // echo "<pre>";
+      // var_dump($available_dids);
+      // echo "</pre>";
+      // exit();
       $dids = array();
-      foreach ($dids_data as $key => $did) {
-        $did_id = $did["id"];
-        $did_number = $did["attributes"]['number'];
-        $did_group_id = $did["relationships"]['did_group']['data']['id'];
-        $did_group = $this->getArrayById($did_groups, $did_group_id);
 
+      if(count($available_dids['data']) > 0){
+        $dids_data = $available_dids['data'];
+        $dids_included = $available_dids['included'];
 
-        $country_id = $did_group['relationships']['country']['data']['id'];
-        $type_id = $did_group['relationships']['did_group_type']['data']['id'];
-
-        $country = $this->getArrayById($this->countries, $country_id);
-        $type = $this->getArrayById($this->types, $type_id);
-        $features = $did_group['attributes']['features'];
-        $metered = $did_group['attributes']['is_metered'];
-        $add_channel = $did_group['attributes']['allow_additional_channels'];
-        if($add_channel == true) $add_channel = "Yes";
-        else $add_channel = "No";
-
-        $stock_keeping_units = $did_group['relationships']['stock_keeping_units']['data'];
-
-        $stocks = array();
-        foreach ($stock_keeping_units as $key => $unit) {
-          $unit_id = $unit['id'];
-          $stock = $this->getArrayById($did_stocks, $unit_id);
-          array_push($stocks, $stock);
+        $did_groups = array();
+        $did_stocks = array();
+        foreach ($dids_included as $key => $value) {
+          if($value['type'] == "did_groups") array_push($did_groups, $value);
+          if($value['type'] == "stock_keeping_units") array_push($did_stocks, $value);
         }
-        $item = array("id" => $did_id,
-                      "number" => $did_number,
-                      "group_id" => $did_group_id,
-                      "country" => $country['attributes']['name'],
-                      "type" => $type['attributes']['name'],
-                      "area" => $did_group['attributes']['area_name'],
-                      "features" => $features,
-                      "metered" => $metered,
-                      "add_channel" => $add_channel,
-                      "stocks" => $stocks);
-        array_push($dids, $item);
+
+        
+        foreach ($dids_data as $key => $did) {
+          $did_id = $did["id"];
+          $did_number = $did["attributes"]['number'];
+          $did_group_id = $did["relationships"]['did_group']['data']['id'];
+          $did_group = $this->getArrayById($did_groups, $did_group_id);
+
+
+          $country_id = $did_group['relationships']['country']['data']['id'];
+          $type_id = $did_group['relationships']['did_group_type']['data']['id'];
+
+          $country = $this->getArrayById($this->countries, $country_id);
+          $type = $this->getArrayById($this->types, $type_id);
+          $features = $did_group['attributes']['features'];
+          $metered = $did_group['attributes']['is_metered'];
+          $add_channel = $did_group['attributes']['allow_additional_channels'];
+          if($add_channel == true) $add_channel = "Yes";
+          else $add_channel = "No";
+
+          $stock_keeping_units = $did_group['relationships']['stock_keeping_units']['data'];
+
+          $stocks = array();
+          foreach ($stock_keeping_units as $key => $unit) {
+            $unit_id = $unit['id'];
+            $stock = $this->getArrayById($did_stocks, $unit_id);
+            array_push($stocks, $stock);
+          }
+          $item = array("id" => $did_id,
+                        "number" => $did_number,
+                        "group_id" => $did_group_id,
+                        "country" => $country['attributes']['name'],
+                        "type" => $type['attributes']['name'],
+                        "area" => $did_group['attributes']['area_name'],
+                        "features" => $features,
+                        "metered" => $metered,
+                        "add_channel" => $add_channel,
+                        "stocks" => $stocks);
+          array_push($dids, $item);
+        }
       }
+      
       return view("pages.available_dids", compact('types', 'countries', 'dids', 'filters', 'cities'));
     }
-    public function getCitiesById(Request $request) {
-      $key = $request->session()->get('api_key');
+    public function getRegions(Request $request) {
+      $country_id = $request->input('country_id');
+      $regions = $this->getResultByUrl("regions?filter[country.id]=".$country_id)['data'];
+      // if(count($regions) == 0) {
+      //   $cities = $this->getResultsByUrl("cities?filter[country.id]=".$country_id)['data'];
+      // }
+      //$cities = $this->getResultsByUrl("cities?filter[country.id]=".$country_id."&filter[region.id]=".$region_id)['data'];
+    
+      // if(count($regions) > 0) {
+      //   $region_id = $regions[0]['id'];
+      //   $cities = $this->getResultsByUrl("cities?filter[country.id]=".$country_id."&filter[region.id]=".$region_id)['data'];
+      // } else {
+      //   $cities = $this->getResultsByUrl("cities?filter[country.id]=".$country_id)['data'];
+      // }
+      echo json_encode(array("regions" => $regions, "cities" => count($regions)));
+    }
+    public function getCitiesByCountry(Request $request) {
       $country_id = $request->input('country_id');
       $cities = $this->getResultByUrl("cities?filter[country.id]=".$country_id)['data'];
-      echo json_encode(array("result" => $cities));
+      echo json_encode(array("cities" => $cities));
     }
 }

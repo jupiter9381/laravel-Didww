@@ -25,4 +25,5 @@ Route::post('/available_dids/search', 'DidsController@search');
 Route::get("/did_reservations/{id}", 'DidsController@view_reservation');
 
 Route::get('/logout', 'Auth\LoginController@logout');
-Route::post('/getCitiesById', 'DidsController@getCitiesById');
+Route::post('/getRegions', 'DidsController@getRegions');
+Route::post('/getCitiesByCountry', 'DidsController@getCitiesByCountry');

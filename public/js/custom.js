@@ -55,6 +55,8 @@ $(document).ready(function(){
   })
   
   $("select[name='country']").change(function(e){
+    $(".region_section").css('display', 'none');
+    $(".city_section").css('display', 'none');
     // var html = "";
     // $(".city_section").css('display', 'block');
     // html += "<option value=''>Select city...</option>";
@@ -65,26 +67,48 @@ $(document).ready(function(){
     //   $("select[name='city']").html(html);
     //   $("select[name='city']").select2();
     // }
+    var country_id = $(this).val();
     if($(this).val() == "") {
       $(".city_section").css('display', 'none');
       $("select[name='city']").html("");
       $("select[name='city']").select2();
     } else {
       $.ajax({
-        url : '/getCitiesById',
+        url : '/getRegions',
         type : 'post',
         dataType : 'json',
-        data: {country_id: $(this).val(), "_token": $('meta[name="csrf-token"]').attr('content')},
+        data: {country_id: country_id, "_token": $('meta[name="csrf-token"]').attr('content')},
         success: function(data){
-          var cities = data['result'];
-          if(cities.length > 0) $(".city_section").css('display', 'block');
-          var html = "";
-          html += "<option value=''>Select city...</option>";
-          for (var i = 0; i < cities.length; i++) {
-            html += "<option value='"+cities[i]['id']+"'>"+cities[i]['attributes']['name']+"</option>";
+          var regions = data['regions'];
+          
+          if(regions.length > 0) {
+            $(".region_section").css('display', 'block');
+            var html = "";
+            html += "<option value=''>Select region...</option>";
+            for (var i = 0; i < regions.length; i++) {
+              html += "<option value='"+regions[i]['id']+"'>"+regions[i]['attributes']['name']+"</option>";
+            }
+            $("select[name='region']").html(html);
+            $("select[name='region']").select2();
+          } else {
+            $.ajax({
+              url : '/getCitiesByCountry',
+              type : 'post',
+              dataType : 'json',
+              data: {country_id: country_id, "_token": $('meta[name="csrf-token"]').attr('content')},
+              success: function(data){
+                var cities = data['cities'];
+                $(".city_section").css('display', 'block');
+                var html = "";
+                html += "<option value=''>Select city...</option>";
+                for (var i = 0; i < cities.length; i++) {
+                  html += "<option value='"+cities[i]['id']+"'>"+cities[i]['attributes']['name']+"</option>";
+                }
+                $("select[name='city']").html(html);
+                $("select[name='city']").select2();
+              }
+            });
           }
-          $("select[name='city']").html(html);
-          $("select[name='city']").select2();
         }
       })
     }
