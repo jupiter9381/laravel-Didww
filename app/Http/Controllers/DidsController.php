@@ -177,26 +177,30 @@ class DidsController extends Controller
       $group_type = $request->input('group_type');
       $did_group_id = $request->input('did_group_id');
       $number = $request->input('number');
+      $region = $request->input('region');
       $city = $request->input('city');
       $filters = array(
         "country" => $country,
         "needs_registration" => $needs_registration,
         'group_type' => $group_type,
         "did_group_id" => $did_group_id,
-        "number" => $number
+        "number" => $number,
+        "city" => $city
       );
       $filter_string = "";
       if($needs_registration != "") $filter_string .= "filter[did_group.needs_registration]=".$needs_registration;
       if($country != "") $filter_string .= "&filter[country.id]=".$country;
       if(count($group_type) > 0) {
+        $filter_string .= "&filter[did_group_type.id]=";
         foreach ($group_type as $key => $type) {
-          $filter_string .= "&filter[did_group_type.id]=".$type;
+          $filter_string .= $type.",";
         }
       }
       if($did_group_id != "") $filter_string .= "&filter[did_group.id]=".$did_group_id;
       if($number != "") $filter_string .= "&filter[number_contains]=".$number;
       if($city != "") $filter_string .= "&filter[city.id]=".$city;
-      
+      if($region != "") $filter_string .= "&filter[region.id]=".$region;
+
       $key = $request->session()->get('api_key');
       $client = new \GuzzleHttp\Client();
 
@@ -205,8 +209,12 @@ class DidsController extends Controller
       $cities = $this->cities;
       $regions = $this->getResultByUrl("regions")['data'];
 
+      // var_dump("available_dids?".$filter_string."&include=did_group,did_group.stock_keeping_units,did_group.country,did_group.did_group_type&page[number]=1&page[size]=10");
+      // exit();
+
       $available_dids = $this->getResultByUrl("available_dids?".$filter_string."&include=did_group,did_group.stock_keeping_units,did_group.country,did_group.did_group_type&page[number]=1&page[size]=10");
 
+      
       // echo "<pre>";
       // var_dump($available_dids);
       // echo "</pre>";
@@ -264,23 +272,11 @@ class DidsController extends Controller
           array_push($dids, $item);
         }
       }
-      
-      return view("pages.available_dids", compact('types', 'countries', 'dids', 'filters', 'cities'));
+      return view("pages.available_dids_search", compact('types', 'countries', 'dids', 'filters', 'cities'));
     }
     public function getRegions(Request $request) {
       $country_id = $request->input('country_id');
       $regions = $this->getResultByUrl("regions?filter[country.id]=".$country_id)['data'];
-      // if(count($regions) == 0) {
-      //   $cities = $this->getResultsByUrl("cities?filter[country.id]=".$country_id)['data'];
-      // }
-      //$cities = $this->getResultsByUrl("cities?filter[country.id]=".$country_id."&filter[region.id]=".$region_id)['data'];
-    
-      // if(count($regions) > 0) {
-      //   $region_id = $regions[0]['id'];
-      //   $cities = $this->getResultsByUrl("cities?filter[country.id]=".$country_id."&filter[region.id]=".$region_id)['data'];
-      // } else {
-      //   $cities = $this->getResultsByUrl("cities?filter[country.id]=".$country_id)['data'];
-      // }
       echo json_encode(array("regions" => $regions, "cities" => count($regions)));
     }
     public function getCitiesByCountry(Request $request) {
