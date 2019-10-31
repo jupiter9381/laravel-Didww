@@ -43,15 +43,19 @@
                             </select>
                         </div>
                       </div>
-                      <div class="row city_section" style="display: none">
-                        <div class="col-12 form-group">
+                      <div class="row">
+                        <div class="col-6 form-group city_section" <?php if(count($cities) == 0) echo "style='display: none;'"?> >
                           <div class="text-bold-600 font-medium-2 mb-1">
                               City:
                           </div>
                           <select class="select2 form-control" name="city">
                               <option value="">Select city...</option>
-                              
-                            </select>
+                              @if(count($cities) > 0)
+                                @foreach($cities as $city)
+                                  <option <?php if($filters['city'] == $city['id']) echo "selected";?> value="{{$city['id']}}">{{$city['attributes']['name']}}</option>
+                                @endforeach
+                              @endif
+                          </select>
                         </div>
                       </div>
                     </div>

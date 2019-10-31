@@ -206,7 +206,9 @@ class DidsController extends Controller
 
       $countries = $this->countries;
       $types = $this->types;
-      $cities = $this->cities;
+
+      if($country != "") $cities = $this->getResultByUrl("cities?filter[country.id]=".$country)['data'];
+      else $cities = [];
       $regions = $this->getResultByUrl("regions")['data'];
 
       // var_dump("available_dids?".$filter_string."&include=did_group,did_group.stock_keeping_units,did_group.country,did_group.did_group_type&page[number]=1&page[size]=10");
