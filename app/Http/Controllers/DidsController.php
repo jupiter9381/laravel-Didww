@@ -288,4 +288,10 @@ class DidsController extends Controller
       $cities = $this->getResultByUrl("cities?filter[country.id]=".$country_id)['data'];
       echo json_encode(array("cities" => $cities));
     }
+    public function getCitiesByRegion(Request $request) {
+      $region_id = $request->input('region_id');
+      $cities = $this->getResultByUrl("cities?filter[region.id]=".$region_id)['data'];
+      echo json_encode(array("cities" => $cities));
+    }
+    
 }

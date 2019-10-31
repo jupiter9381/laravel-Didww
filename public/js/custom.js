@@ -54,6 +54,26 @@ $(document).ready(function(){
     }
   })
   
+  $("select[name='region']").change(function(e){
+    var region_id = $(this).val();
+    $.ajax({
+      url : '/getCitiesByRegion',
+      type : 'post',
+      dataType : 'json',
+      data: {region_id: region_id, "_token": $('meta[name="csrf-token"]').attr('content')},
+      success: function(data){
+        var cities = data['cities'];
+        $(".city_section").css('display', 'block');
+        var html = "";
+        html += "<option value=''>Select city...</option>";
+        for (var i = 0; i < cities.length; i++) {
+          html += "<option value='"+cities[i]['id']+"'>"+cities[i]['attributes']['name']+"</option>";
+        }
+        $("select[name='city']").html(html);
+        $("select[name='city']").select2();
+      }
+    });
+  });
   $("select[name='country']").change(function(e){
     $(".region_section").css('display', 'none');
     $(".city_section").css('display', 'none');
