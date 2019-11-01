@@ -44,6 +44,19 @@
                         </div>
                       </div>
                       <div class="row">
+                        <div class="col-6 form-group region_section" <?php if(count($regions) == 0) echo "style='display: none;'"?>>
+                          <div class="text-bold-600 font-medium-2 mb-1">
+                              Region:
+                          </div>
+                          <select class="select2 form-control" name="region">
+                              <option value="">Select region...</option>
+                              @if(count($regions) > 0)
+                                @foreach($regions as $region)
+                                  <option <?php if($filters['region'] == $region['id']) echo "selected";?> value="{{$region['id']}}">{{$region['attributes']['name']}}</option>
+                                @endforeach
+                              @endif
+                            </select>
+                        </div>
                         <div class="col-6 form-group city_section" <?php if(count($cities) == 0) echo "style='display: none;'"?> >
                           <div class="text-bold-600 font-medium-2 mb-1">
                               City:

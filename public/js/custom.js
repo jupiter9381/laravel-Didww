@@ -77,6 +77,10 @@ $(document).ready(function(){
   $("select[name='country']").change(function(e){
     $(".region_section").css('display', 'none');
     $(".city_section").css('display', 'none');
+    $("select[name='city']").html("");
+    $("select[name='city']").select2();
+    $("select[name='region']").html("");
+    $("select[name='region']").select2();
     // var html = "";
     // $(".city_section").css('display', 'block');
     // html += "<option value=''>Select city...</option>";
@@ -92,6 +96,8 @@ $(document).ready(function(){
       $(".city_section").css('display', 'none');
       $("select[name='city']").html("");
       $("select[name='city']").select2();
+      $("select[name='region']").html("");
+      $("select[name='region']").select2();
     } else {
       $.ajax({
         url : '/getRegions',

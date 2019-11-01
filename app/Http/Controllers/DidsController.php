@@ -185,7 +185,8 @@ class DidsController extends Controller
         'group_type' => $group_type,
         "did_group_id" => $did_group_id,
         "number" => $number,
-        "city" => $city
+        "city" => $city,
+        'region' => $region 
       );
       $filter_string = "";
       if($needs_registration != "") $filter_string .= "filter[did_group.needs_registration]=".$needs_registration;
@@ -207,9 +208,18 @@ class DidsController extends Controller
       $countries = $this->countries;
       $types = $this->types;
 
-      if($country != "") $cities = $this->getResultByUrl("cities?filter[country.id]=".$country)['data'];
-      else $cities = [];
-      $regions = $this->getResultByUrl("regions")['data'];
+      if($country != "") {
+        $regions = $this->getResultByUrl("regions?filter[country.id]=".$country)['data'];
+        if($region != ""){
+          $cities =  $this->getResultByUrl("cities?filter[region.id]=".$region)['data'];
+        } else {
+          $cities = $this->getResultByUrl("cities?filter[country.id]=".$country)['data'];
+        }
+      } else {
+        $regions = [];
+        $cities = [];
+      }
+      //$regions = $this->getResultByUrl("regions")['data'];
 
       // var_dump("available_dids?".$filter_string."&include=did_group,did_group.stock_keeping_units,did_group.country,did_group.did_group_type&page[number]=1&page[size]=10");
       // exit();
@@ -274,7 +284,7 @@ class DidsController extends Controller
           array_push($dids, $item);
         }
       }
-      return view("pages.available_dids_search", compact('types', 'countries', 'dids', 'filters', 'cities'));
+      return view("pages.available_dids_search", compact('types', 'countries', 'dids', 'filters', 'cities', 'regions'));
     }
     public function getRegions(Request $request) {
       $country_id = $request->input('country_id');
